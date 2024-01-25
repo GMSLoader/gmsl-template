@@ -1,0 +1,15 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Name",
+    "classifications": [ "GMSL", "Mod" ],
+    "identity": "GMSL.Mod",
+    "name": "GMSL Mod Template",
+    "description": "A template for gmsl mods",
+    "shortName": "gmsl",
+    "sourceName": "gmsl-template",
+    "tags": {
+        "language": "C#",
+        "type": "solution"
+    },
+    "preferNameDirectory": true
+}

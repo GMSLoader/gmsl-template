@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <RootNamespace>gmsl_template</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="vendor\gmsl\gmsl-modapi\gmsl-modapi.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="vendor/**/*" />
+  </ItemGroup>
+
+</Project>
