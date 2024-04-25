@@ -16,4 +16,8 @@
     <Compile Include="**\*.cs" Exclude="vendor\**\*.*" />
   </ItemGroup>
 
+  <Target Name="CopyModInfo" AfterTargets="AfterBuild">
+    <Copy SourceFiles="modinfo.json" DestinationFolder="$(OutDir)" />
+  </Target>
+
 </Project>
