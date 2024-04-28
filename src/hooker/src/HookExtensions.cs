@@ -2,7 +2,7 @@
 using UndertaleModLib;
 using UndertaleModLib.Models;
 
-namespace gmsl_template;
+namespace GMHooker;
 
 public static class HookExtensions {
     private static readonly Dictionary<string, UndertaleCode> originalCodes = new();
@@ -55,6 +55,50 @@ public static class HookExtensions {
         code.ReplaceGmlSafe(hook.Replace("#orig#", $"{originalName}"), data);
     }
 
+    public static void HookFunction(this UndertaleData data, string function, string hook, ushort argCount = 0) {
+        HardHook(data, function, hook, argCount);
+    }
+
+    public delegate void AsmHook(UndertaleCode code, UndertaleCodeLocals locals);
+
+    public static void HookAsm(this UndertaleData data, string name, AsmHook hook) {
+        if(!originalCodes.TryGetValue(name, out UndertaleCode? code))
+            code = data.Code.ByName(name);
+        code.Hook(data.CodeLocals.ByName(code.Name.Content), hook);
+    }
+
+    public static void Hook(this UndertaleCode code, UndertaleCodeLocals locals, AsmHook hook) {
+        hook(code, locals);
+        code.UpdateAddresses();
+    }
+
+    public static void HardHook(this UndertaleData data, string function, string hook, ushort argCount) {
+        function = "gml_Script_" + function;
+        string hookName = GetDerivativeName(function, "hook");
+        UndertaleCode hookCode = data.CreateLegacyScript(hookName, hook.Replace("#orig#", function), argCount).Code;
+        foreach(UndertaleCode code in data.Code) {
+            if(code.ParentEntry is not null || code == hookCode) continue;
+            code.Hook(data.CodeLocals.ByName(code.Name.Content), (origCode, locals) => {
+                AsmCursor cursor = new(data, origCode, locals);
+                while(cursor.GotoNext($"call.i {function}(argc={argCount})"))
+                    cursor.Replace($"call.i {hookName}(argc={argCount})");
+            });
+        }
+    }
+
+    public static void HardHook(this UndertaleFunction function, UndertaleData data, string hook, ushort argCount) =>
+        data.HardHook(function.Name.Content, hook, argCount);
+
+    public static Dictionary<string, UndertaleVariable> GetLocalVars(this UndertaleCodeLocals locals,
+        UndertaleData data) => locals.Locals.ToDictionary(local => local.Name.Content, local =>
+        data.Variables.First(variable => variable.VarID == (int)local.Index));
+
+    private static string GetDerivativeName(string name, string suffix) =>
+        $"gmml_{name}_{suffix}_{Guid.NewGuid().ToString().Replace('-', '_')}";
+
+    /*
+    //The ORIGINAL "hookFunction" function. It was MUCH faster, but the switch to UMTCE broke it. If you can fix it PLEASE make a pull request!
+
     public static void HookFunction(this UndertaleData data, string function, string hook) {
         string hookedFunctionName = $"gml_Script_{function}";
         UndertaleCode hookedFunctionCode = data.Code.ByName(hookedFunctionName);
@@ -82,40 +126,5 @@ public static class HookExtensions {
             cursor.Replace($"pop.v.v [stacktop]self.{originalName}");
         });
     }
-
-    public delegate void AsmHook(UndertaleCode code, UndertaleCodeLocals locals);
-
-    public static void HookAsm(this UndertaleData data, string name, AsmHook hook) {
-        if(!originalCodes.TryGetValue(name, out UndertaleCode? code))
-            code = data.Code.ByName(name);
-        code.Hook(data.CodeLocals.ByName(code.Name.Content), hook);
-    }
-
-    public static void Hook(this UndertaleCode code, UndertaleCodeLocals locals, AsmHook hook) {
-        hook(code, locals);
-        code.UpdateAddresses();
-    }
-
-    public static void HardHook(this UndertaleData data, string function, string hook, ushort argCount) {
-        string hookName = GetDerivativeName(function, "hook");
-        UndertaleCode hookCode = data.CreateLegacyScript(hookName, hook, argCount).Code;
-        foreach(UndertaleCode code in data.Code) {
-            if(code.ParentEntry is not null || code == hookCode) continue;
-            code.Hook(data.CodeLocals.ByName(code.Name.Content), (origCode, locals) => {
-                AsmCursor cursor = new(data, origCode, locals);
-                while(cursor.GotoNext($"call.i {function}(argc={argCount})"))
-                    cursor.Replace($"call.i {hookName}(argc={argCount})");
-            });
-        }
-    }
-
-    public static void HardHook(this UndertaleFunction function, UndertaleData data, string hook, ushort argCount) =>
-        data.HardHook(function.Name.Content, hook, argCount);
-
-    public static Dictionary<string, UndertaleVariable> GetLocalVars(this UndertaleCodeLocals locals,
-        UndertaleData data) => locals.Locals.ToDictionary(local => local.Name.Content, local =>
-        data.Variables.First(variable => variable.VarID == (int)local.Index));
-
-    private static string GetDerivativeName(string name, string suffix) =>
-        $"gmml_{name}_{suffix}_{Guid.NewGuid().ToString().Replace('-', '_')}";
+    */
 }
