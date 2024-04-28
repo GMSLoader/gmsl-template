@@ -95,4 +95,36 @@ public static class HookExtensions {
 
     private static string GetDerivativeName(string name, string suffix) =>
         $"gmml_{name}_{suffix}_{Guid.NewGuid().ToString().Replace('-', '_')}";
+
+    /*
+    //The ORIGINAL "hookFunction" function. It was MUCH faster, but the switch to UMTCE broke it. If you can fix it PLEASE make a pull request!
+
+    public static void HookFunction(this UndertaleData data, string function, string hook) {
+        string hookedFunctionName = $"gml_Script_{function}";
+        UndertaleCode hookedFunctionCode = data.Code.ByName(hookedFunctionName);
+        UndertaleCode hookedCode = hookedFunctionCode.ParentEntry;
+        UndertaleCodeLocals hookedCodeLocals = data.CodeLocals.ByName(hookedCode.Name.Content);
+
+        string originalName = GetDerivativeName(hookedFunctionName, "orig");
+
+        UndertaleScript originalFunctionScript =
+            hookedCode.CreateFunctionDefinition(data, true, originalName, hookedFunctionCode.ArgumentsCount,
+                hookedFunctionCode.LocalsCount);
+
+        originalFunctionScript.Code.Offset = hookedFunctionCode.Offset;
+        hookedFunctionCode.Offset = 0;
+
+        hookedCode.PrependFunctionCode(data, function, hook.Replace("#orig#", $"{originalFunctionScript.Name.Content}"),
+            hookedCodeLocals, hookedFunctionCode);
+
+        hookedCode.Hook(hookedCodeLocals, (code, locals) => {
+            AsmCursor cursor = new(data, code, locals);
+            cursor.GotoNext(instruction => instruction.Address == originalFunctionScript.Code.Offset / 4);
+            cursor.GotoNext($"push.i {hookedFunctionName}");
+            cursor.Replace($"push.i {originalFunctionScript.Name.Content}");
+            cursor.index += 7;
+            cursor.Replace($"pop.v.v [stacktop]self.{originalName}");
+        });
+    }
+    */
 }
