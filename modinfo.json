@@ -3,5 +3,5 @@
     "ID": "templatemod",
     "Version": "1.0.0",
     "Description": "",
-    "Dependencies": "Change your modinfo.json!"
+    "Dependencies": ["Change your modinfo.json!"]
 }
