@@ -80,10 +80,11 @@ public static class HookExtensions {
     }
 
     public static void FinalizeHooks(this UndertaleData data){
-        foreach(UndertaleCode code in data.Code) {
-            if(code.ParentEntry is not null) continue;
+        Parallel.ForEach(data.Code, (code) => {
+            if(code.ParentEntry is not null) return;
+            
             code.Hook(data.CodeLocals.ByName(code.Name.Content), (origCode, locals) => {
-                foreach(string function in hooksToWrite.Keys) {
+                foreach (string function in hooksToWrite.Keys) {
                     var newHookInfo = hooksToWrite[function];
                     string hookName = newHookInfo.Item1;
                     ushort argCount = newHookInfo.Item2;
@@ -92,7 +93,7 @@ public static class HookExtensions {
                         cursor.Replace($"call.i {hookName}(argc={argCount})");
                 }
             });
-        }
+        });
     }
 
     public static void HardHook(this UndertaleFunction function, UndertaleData data, string hook, ushort argCount) =>

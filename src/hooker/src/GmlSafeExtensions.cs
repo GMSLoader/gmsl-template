@@ -2,7 +2,7 @@
 using UndertaleModLib;
 using UndertaleModLib.Models;
 
-namespace gmsl_template;
+namespace GMHooker;
 
 public static class GmlSafeExtensions {
     public static void ReplaceGmlSafe(this UndertaleCode code, string gmlCode, UndertaleData data) {

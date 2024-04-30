@@ -2,7 +2,7 @@
 using UndertaleModLib;
 using UndertaleModLib.Models;
 
-namespace gmsl_template;
+namespace GMHooker;
 
 public static class UndertaleInstructionExtensions {
     public static bool Match(this UndertaleInstruction left, UndertaleInstruction right) {

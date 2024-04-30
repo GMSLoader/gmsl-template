@@ -4,7 +4,7 @@ using UndertaleModLib;
 using UndertaleModLib.Decompiler;
 using UndertaleModLib.Models;
 
-namespace gmsl_template;
+namespace GMHooker;
 
 public static class CreateExtensions {
     public static UndertaleCode CreateCode(this UndertaleData data, UndertaleString name, out UndertaleCodeLocals locals) {
