@@ -2,7 +2,7 @@ using UndertaleModLib;
 using UndertaleModLib.Decompiler;
 using UndertaleModLib.Models;
 
-namespace GMHooker;
+namespace gmsl_template;
 
 // totally not stolen from MonoMod
 public class AsmCursor {

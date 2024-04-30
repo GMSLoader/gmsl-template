@@ -2,7 +2,7 @@
 using UndertaleModLib;
 using UndertaleModLib.Models;
 
-namespace GMHooker;
+namespace gmsl_template;
 
 public static class HookExtensions {
     private static readonly Dictionary<string, UndertaleCode> originalCodes = new();
