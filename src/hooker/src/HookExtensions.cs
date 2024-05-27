@@ -55,7 +55,8 @@ public static class HookExtensions {
         code.ReplaceGmlSafe(hook.Replace("#orig#", $"{originalName}"), data);
     }
 
-    public static void HookFunction(this UndertaleData data, string function, string hook, ushort argCount = 0) {
+    public static void HookFunction(this UndertaleData data, string function, string hook) {
+        ushort argCount = data.Code.ByName("gml_Script_" + function).ArgumentsCount;
         HardHook(data, function, hook, argCount);
     }
 
@@ -80,20 +81,20 @@ public static class HookExtensions {
     }
 
     public static void FinalizeHooks(this UndertaleData data){
-        Parallel.ForEach(data.Code, (code) => {
-            if(code.ParentEntry is not null) return;
-            
+        foreach(UndertaleCode code in data.Code) {
+            if(code.ParentEntry is not null) continue;
             code.Hook(data.CodeLocals.ByName(code.Name.Content), (origCode, locals) => {
-                foreach (string function in hooksToWrite.Keys) {
+                foreach(string function in hooksToWrite.Keys) {
                     var newHookInfo = hooksToWrite[function];
                     string hookName = newHookInfo.Item1;
                     ushort argCount = newHookInfo.Item2;
                     AsmCursor cursor = new(data, origCode, locals);
-                    while(cursor.GotoNext($"call.i {function}(argc={argCount})"))
+                    while(cursor.GotoNext($"call.i {function}(argc={argCount})")){
                         cursor.Replace($"call.i {hookName}(argc={argCount})");
+                    }
                 }
             });
-        });
+        }
     }
 
     public static void HardHook(this UndertaleFunction function, UndertaleData data, string hook, ushort argCount) =>
