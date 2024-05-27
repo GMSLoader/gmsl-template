@@ -92,6 +92,12 @@ public static class HookExtensions {
                     while(cursor.GotoNext($"call.i {function}(argc={argCount})")){
                         cursor.Replace($"call.i {hookName}(argc={argCount})");
                     }
+                    AsmCursor cursor2 = new(data, origCode, locals);
+                    while(cursor2.GotoNext($"push.i {function}")){
+                        cursor2.Replace($"push.i {hookName}");
+                    }
+                    
+                    
                 }
             });
         }
