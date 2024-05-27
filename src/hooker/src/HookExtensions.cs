@@ -90,7 +90,6 @@ public static class HookExtensions {
                     ushort argCount = newHookInfo.Item2;
                     AsmCursor cursor = new(data, origCode, locals);
                     while(cursor.GotoNext($"call.i {function}(argc={argCount})")){
-                        Console.WriteLine($"call.i {function}(argc={argCount})\nreplaced with\ncall.i {hookName}(argc={argCount})\n\n");
                         cursor.Replace($"call.i {hookName}(argc={argCount})");
                     }
                 }
